@@ -1,9 +1,16 @@
 const remoteAudio = document.getElementById("remoteAudio");
 const channelInput = document.getElementById("channelName");
 const joinButton = document.getElementById("joinVoice");
+const toggleMicButton = document.getElementById("toggleMic");
 
 let socket;
 let pc;
+let micTrack;
+
+toggleMicButton.addEventListener("click", () => {
+  micTrack.enabled = !micTrack.enabled;
+  toggleMicButton.textContent = micTrack.enabled ? "Выключить микрофон" : "Включить микрофон";
+});
 
 joinButton.addEventListener("click", async () => {
   joinButton.disabled = true;
@@ -30,9 +37,9 @@ joinButton.addEventListener("click", async () => {
       await pc.setRemoteDescription(msg.sdp);
 
       const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      for (const micTrack of micStream.getAudioTracks()) {
-        pc.addTrack(micTrack, micStream);
-      }
+      [micTrack] = micStream.getAudioTracks();
+      pc.addTrack(micTrack, micStream);
+      toggleMicButton.disabled = false;
 
       const answer = await pc.createAnswer();
       await pc.setLocalDescription(answer);

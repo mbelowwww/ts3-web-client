@@ -3,3 +3,5 @@ dist/
 .env
 *.log
 .SESSION-CONTEXT
+/SESSION-CONTEXT.md
+/ts3-web-client-plan.md
