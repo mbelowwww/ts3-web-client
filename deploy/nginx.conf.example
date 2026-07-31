@@ -1,0 +1,28 @@
+# Конфиг nginx для docker-compose.prod.yml — монтируется прямо в контейнер
+# nginx (см. docker-compose.prod.yml), руками разворачивать не нужно.
+
+server {
+    listen 80;
+    server_name _;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name _;
+
+    ssl_certificate     /etc/nginx/ssl/ts3web.crt;
+    ssl_certificate_key /etc/nginx/ssl/ts3web.key;
+
+    location / {
+        # "ts3web" — имя сервиса гейтвея в docker-compose.prod.yml, не IP/127.0.0.1:
+        # внутри docker-сети сервисы резолвятся друг другом по имени.
+        proxy_pass http://ts3web:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_read_timeout 3600s;
+    }
+}

@@ -1,5 +1,6 @@
 const treeEl = document.getElementById("tree");
-const socket = new WebSocket(`ws://${location.host}/ws/admin`);
+const wsProtocol = location.protocol === "https:" ? "wss:" : "ws:";
+const socket = new WebSocket(`${wsProtocol}//${location.host}/ws/admin`);
 
 function renderTree(tree) {
   const byParent = new Map();

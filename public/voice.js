@@ -15,7 +15,8 @@ toggleMicButton.addEventListener("click", () => {
 joinButton.addEventListener("click", async () => {
   joinButton.disabled = true;
 
-  socket = new WebSocket(`ws://${location.host}/ws/voice`);
+  const wsProtocol = location.protocol === "https:" ? "wss:" : "ws:";
+  socket = new WebSocket(`${wsProtocol}//${location.host}/ws/voice`);
   pc = new RTCPeerConnection();
 
   pc.ontrack = (event) => {
