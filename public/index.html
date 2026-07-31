@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>ts3web — тестовая страница</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 40px auto; padding: 0 16px; }
+    h2 { margin-top: 2em; }
+    #tree { white-space: pre-wrap; background: #f4f4f4; padding: 12px; border-radius: 6px; font-family: monospace; }
+    input, button { font-size: 1em; padding: 6px 10px; }
+  </style>
+</head>
+<body>
+  <h1>ts3web — первый вертикальный срез</h1>
+
+  <h2>Админка</h2>
+  <div id="tree">подключение...</div>
+
+  <h2>Голос (приём и передача)</h2>
+  <input id="channelName" placeholder="Имя канала, например Lobby" value="Lobby" />
+  <button id="joinVoice">Подключиться к голосу</button>
+  <audio id="remoteAudio" autoplay controls></audio>
+
+  <script src="admin.js" type="module"></script>
+  <script src="voice.js" type="module"></script>
+</body>
+</html>

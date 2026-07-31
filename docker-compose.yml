@@ -1,0 +1,16 @@
+services:
+  ts3server:
+    image: teamspeak:latest
+    container_name: ts3web-test-server
+    restart: unless-stopped
+    environment:
+      TS3SERVER_LICENSE: accept
+    ports:
+      - "9987:9987/udp"   # голос
+      - "10011:10011/tcp" # ServerQuery (raw)
+      - "30033:30033/tcp" # передача файлов
+    volumes:
+      - ts3_data:/var/ts3server/
+
+volumes:
+  ts3_data:
