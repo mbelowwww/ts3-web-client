@@ -65,24 +65,25 @@ loginname= "serveradmin", password= "<сгенерированный парол�
 и сам подставляет их в последующие запросы, включая WebSocket-апгрейды —
 дополнительный код на фронте не нужен.
 
-## Деплой на прод (без домена — только IP)
+## Деплой на прод
 
 Пошаговая инструкция с проверкой каждого шага — в [`DEPLOY.md`](./DEPLOY.md).
+Два сценария:
 
-Коротко: всё поднимается одной командой —
+- **Домена нет, только IP** — всё поднимается одной командой
+  (`docker compose -f docker-compose.prod.yml up -d --build`): TS3-сервер,
+  гейтвей и nginx с самоподписанным сертификатом (генерируется автоматически
+  при первом старте, `deploy/nginx-entrypoint.sh`) — Let's Encrypt на голый
+  IP не выдаст сертификат.
+- **Домен и HTTPS уже настроены, nginx на хосте уже есть** — свой
+  nginx-в-docker не поднимается (`up -d --build ts3server ts3web`), вместо
+  этого в уже существующий nginx добавляется один `location`
+  (`deploy/nginx-location.conf.example`), проксирующий на гейтвей
+  (`127.0.0.1:3000` — публикуется только на loopback).
 
-```bash
-docker compose -f docker-compose.prod.yml up -d --build
-```
-
-Это разворачивает три контейнера: TS3-сервер, гейтвей и nginx. Домена нет —
-только IP, поэтому Let's Encrypt не подходит; TLS терминирует nginx с
-самоподписанным сертификатом, который генерируется автоматически при первом
-старте контейнера (`deploy/nginx-entrypoint.sh`). Сервисы обращаются друг к
-другу по именам внутри docker-сети (`ts3server`, `ts3web`), без
-`network_mode: host` и без ручной установки nginx на хост. Наружу
-публикуются только `80`/`443` и голосовой `9987/udp` — порты гейтвея (3000)
-и ServerQuery (10011) наружу не смотрят вообще.
+В обоих случаях сервисы `ts3server`/`ts3web` обращаются друг к другу по
+именам внутри docker-сети, без `network_mode: host`. Порты гейтвея (3000) и
+ServerQuery (10011) наружу не смотрят — только через loopback или docker-сеть.
 
 Единственное ручное действие после первого запуска — вписать в `.env`
 реальный пароль ServerQuery, который TS3 сгенерирует сам при первом старте
@@ -103,8 +104,9 @@ docker-compose.yml          TS3-сервер (образ teamspeak:latest) дл�
 docker-compose.prod.yml     прод одной командой: TS3 + гейтвей + nginx(TLS) в одной docker-сети
 Dockerfile                   multi-stage сборка гейтвея (tsc build → node dist/server.js)
 deploy/
-  nginx.conf.example          конфиг nginx (self-signed TLS, проксирование на ts3web:3000 по имени сервиса)
+  nginx.conf.example           конфиг для nginx-в-docker (self-signed TLS, сценарий "домена нет")
   nginx-entrypoint.sh          автогенерация самоподписанного сертификата при первом старте контейнера
+  nginx-location.conf.example  location-сниппет для УЖЕ существующего хостового nginx (сценарий "домен есть")
 ```
 
 ## Известные риски / что проверить дальше

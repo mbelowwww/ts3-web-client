@@ -23,7 +23,16 @@ services:
       # Внутри docker-сети сервисы видны друг другу по имени — не 127.0.0.1.
       TS3_HOST: ts3server
       TS3_VOICE_HOST: ts3server
+    ports:
+      # Только на loopback — снаружи недоступно. Нужно, если TLS уже терминирует
+      # СВОЙ nginx на хосте (см. DEPLOY.md, «Сценарий Б») и ходит сюда напрямую;
+      # для сценария с self-signed (nginx ниже, в docker) не используется, но
+      # публикация на 127.0.0.1 ничему не мешает и в этом случае.
+      - "127.0.0.1:3000:3000"
 
+  # Нужен только для сценария "домена/HTTPS ещё нет" (self-signed, см. DEPLOY.md,
+  # «Сценарий А»). Если TLS уже терминирует свой nginx на хосте — не поднимайте
+  # этот сервис вообще: `docker compose -f docker-compose.prod.yml up -d --build ts3server ts3web`.
   nginx:
     image: nginx:alpine
     container_name: ts3web-nginx
